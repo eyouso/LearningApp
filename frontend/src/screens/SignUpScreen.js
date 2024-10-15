@@ -10,7 +10,6 @@ const SignUpScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
       <SignUpForm />
       <Button
         title="Already have an account? Login"
@@ -27,10 +26,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 16,
   },
 });
 
