@@ -3,16 +3,19 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';  // Import the function directly
 import { auth } from '../services/firebase';  // Import the initialized auth instance
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const navigation = useNavigation(); // Get navigation instance
 
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)  // Use the modular method
       .then((userCredential) => {
         console.log('User created:', userCredential.user);
+        navigation.navigate('Login');
       })
       .catch((error) => {
         setErrorMessage(error.message);
