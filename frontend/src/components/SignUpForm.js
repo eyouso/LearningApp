@@ -36,8 +36,8 @@ const SignUpForm = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Sign Up" onPress={handleSignUp} color="#1E90FF"/>
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+      <Button title="Sign Up" onPress={handleSignUp} color="#1E90FF" testID='signUpButton'/>
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null }
     </View>
   );
 };
