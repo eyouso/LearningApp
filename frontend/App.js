@@ -2,9 +2,15 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
+import { Provider } from 'react-redux';
+import store from './src/store';
 
 export default function App() {
-  return <AppNavigator />;
+  return (
+    <Provider store={store}>
+      <AppNavigator />
+    </Provider>
+  );
 }
 
 // Work on stylesheet

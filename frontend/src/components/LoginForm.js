@@ -1,18 +1,23 @@
 // src/components/LoginForm.js
+// src/components/LoginForm.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../services/firebase';
+import { useDispatch } from 'react-redux';
+import { login } from '../store';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const dispatch = useDispatch();
 
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log('User logged in:', userCredential.user);
+        dispatch(login());
       })
       .catch((error) => {
         setErrorMessage(error.message);
@@ -43,6 +48,7 @@ const LoginForm = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

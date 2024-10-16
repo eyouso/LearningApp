@@ -1,19 +1,16 @@
 // src/navigation/AppNavigator.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from '../screens/LoginScreen';
-import SignUpScreen from '../screens/SignUpScreen';
-
-const Stack = createStackNavigator();
+import { useSelector } from 'react-redux';
+import AppStackNavigator from './AppStackNavigator';
+import AuthStackNavigator from './AuthStackNavigator';
 
 const AppNavigator = () => {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-      </Stack.Navigator>
+      {isAuthenticated ? <AppStackNavigator /> : <AuthStackNavigator />}
     </NavigationContainer>
   );
 };
