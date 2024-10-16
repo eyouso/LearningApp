@@ -5,10 +5,12 @@ import {
   fireEvent,
   waitFor,
   cleanup,
+  screen,
 } from "@testing-library/react-native";
 import SignUpScreen from "../src/screens/SignUpScreen";
 import { NavigationContainer } from "@react-navigation/native"; // Mock the navigation
 import { useNavigation } from "@react-navigation/native";
+import { createUserWithEmailAndPassword, getReactNativePersistence, initializeAuth } from 'firebase/auth'; // Adjust to match your app structure
 
 // Mock the navigation hook globally
 jest.mock("@react-navigation/native", () => {
@@ -19,8 +21,15 @@ jest.mock("@react-navigation/native", () => {
   };
 });
 
-// Mock the firebase module
-jest.mock("../src/services/firebase");
+// Mock the firebase auth module, as used in SignUpForm
+jest.mock('firebase/auth', () => ({
+  createUserWithEmailAndPassword: jest.fn(),
+  getReactNativePersistence: jest.fn(),
+  initializeAuth: jest.fn(() => ({
+    // Return a mock auth object if needed
+    currentUser: null,
+  })),
+}));
 
 // Use fake timers to control the timing of async functions
 beforeEach(() => {
@@ -36,21 +45,15 @@ afterEach(async () => {
 });
 
 test("renders SignUpScreen with SignUpForm and Login button", () => {
-  // Wrap the SignUpScreen in a NavigationContainer to mock navigation behavior
   const { getAllByText, getByPlaceholderText, getByText } = render(
     <NavigationContainer>
       <SignUpScreen />
     </NavigationContainer>
   );
 
-  // Check if at least one element with the title "Sign Up" is rendered
   expect(getAllByText("Sign Up").length).toBeGreaterThan(0);
-
-  // Check if the SignUpForm fields are present
   expect(getByPlaceholderText("Email")).toBeTruthy();
   expect(getByPlaceholderText("Password")).toBeTruthy();
-
-  // Check if the "Already have an account? Login" button is present
   expect(getByText("Already have an account? Login")).toBeTruthy();
 });
 
@@ -67,32 +70,34 @@ test("navigates to LoginScreen when 'Already have an account? Login' button is p
   const loginButton = getByText("Already have an account? Login");
   fireEvent.press(loginButton);
 
-  // Verify that navigation was called with "Login"
   expect(mockNavigate).toHaveBeenCalledWith("Login");
 });
 
-// test("signs up successfully with valid email and password", async () => {
-//   const { getByPlaceholderText, getByTestId, findByText } = render(
-//     <NavigationContainer>
-//       <SignUpScreen />
-//     </NavigationContainer>
-//   );
+test("navigates to LoginScreen after successful sign-up", async () => {
+  const mockNavigate = jest.fn();
+  useNavigation.mockReturnValue({ navigate: mockNavigate });
 
-//   // Simulate entering valid email and password
-//   fireEvent.changeText(getByPlaceholderText("Email"), "validemail@example.com");
-//   fireEvent.changeText(getByPlaceholderText("Password"), "validpassword123");
+  // Mock Firebase sign-up to succeed using the createUserWithEmailAndPassword mock
+  createUserWithEmailAndPassword.mockResolvedValueOnce({
+    user: { uid: '123', email: 'test@example.com' },
+  });
 
-//   // Press the "Sign Up" button using the testID
-//   fireEvent.press(getByTestId("signUpButton"));
+  const { getByPlaceholderText, getByText } = render(
+    <NavigationContainer>
+      <SignUpScreen />
+    </NavigationContainer>
+  );
 
-//   // Run any pending timers
-//   jest.runAllTimers();
+  // Simulate entering email and password
+  fireEvent.changeText(getByPlaceholderText("Email"), "test@example.com");
+  fireEvent.changeText(getByPlaceholderText("Password"), "password123");
 
-//   // Wait for the error message to appear
-//   const errorMessage = await waitFor(() =>
-//     findByText("The email address is badly formatted.")
-//   );
-//   expect(errorMessage).toBeTruthy();
+  // Press the "Sign Up" button
+  fireEvent.press(screen.getByTestId("signUpButton"));
 
-//   console.log("Test finished successfully, valid signup.");
-// });
+  // Wait for the Firebase function to resolve and check if navigation happens
+  await waitFor(() => {
+    expect(createUserWithEmailAndPassword).toHaveBeenCalledWith(expect.anything(), "test@example.com", "password123");
+    expect(mockNavigate).toHaveBeenCalledWith("Login");
+  });
+});

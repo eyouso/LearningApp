@@ -1,9 +1,11 @@
+// __mocks__/@react-navigation/native.js
 const actualNav = jest.requireActual('@react-navigation/native');
 
-// Mock the `useNavigation` hook globally for all tests
 module.exports = {
   ...actualNav,
-  useNavigation: jest.fn(() => ({
-    navigate: jest.fn(),
-  })),
+  useNavigation: jest.fn(() => {
+    return {
+      navigate: jest.fn(),
+    };
+  }),
 };
